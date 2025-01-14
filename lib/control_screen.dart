@@ -253,46 +253,6 @@ class _ControlScreenState extends State<ControlScreen> {
                     ],
                   ),
                   // Servo Control
-                  Row(
-                    children: [
-                      const Icon(Icons.rotate_right,
-                          color: Colors.blue, size: 20),
-                      const SizedBox(width: 8),
-                      const Text('Servo:', style: TextStyle(fontSize: 14)),
-                      Expanded(
-                        child: SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            trackHeight: 4,
-                            thumbShape: const RoundSliderThumbShape(
-                                enabledThumbRadius: 6),
-                            overlayShape: const RoundSliderOverlayShape(
-                                overlayRadius: 16),
-                          ),
-                          child: Slider(
-                            value: _servo,
-                            min: 0,
-                            max: 180,
-                            divisions: 180,
-                            activeColor: Colors.blue,
-                            inactiveColor: Colors.blue.withOpacity(0.2),
-                            onChanged: (value) {
-                              setState(() => _servo = value);
-                            },
-                            onChangeEnd: (value) {
-                              _sendCommand('Servo', value.round().toString());
-                            },
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 40,
-                        child: Text(
-                          _servo.round().toString(),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -372,7 +332,7 @@ class _ControlScreenState extends State<ControlScreen> {
   // Optional: Tambahkan efek pressed state
   Widget _buildControlButtonWithState(String label, VoidCallback onPressed) {
     bool isPressed = false;
-    
+
     return StatefulBuilder(
       builder: (context, setState) => GestureDetector(
         onTapDown: (_) {
@@ -458,11 +418,16 @@ class _ControlScreenState extends State<ControlScreen> {
 
   String getDirectionValue(String label) {
     switch (label) {
-      case '↑': return '1';
-      case '↓': return '2';
-      case '←': return '3';
-      case '→': return '4';
-      default: return '0';
+      case '↑':
+        return '1';
+      case '↓':
+        return '2';
+      case '←':
+        return '3';
+      case '→':
+        return '4';
+      default:
+        return '0';
     }
   }
 

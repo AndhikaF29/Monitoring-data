@@ -29,9 +29,6 @@ class GrafikScreen extends StatelessWidget {
                     _buildLineChart("Gas", Colors.blueAccent,
                         (data) => data.gas.toDouble()),
                     const SizedBox(height: 16),
-                    _buildLineChart(
-                        "pH", Colors.green, (data) => data.ph),
-                    const SizedBox(height: 16),
                     _buildLineChart("Kelembapan", Colors.orangeAccent,
                         (data) => data.humidity),
                   ],
@@ -65,36 +62,24 @@ class GrafikScreen extends StatelessWidget {
           child: LineChart(
             LineChartData(
               titlesData: FlTitlesData(
-                leftTitles: title == "pH"
+                leftTitles: title == "Gas"
                     ? AxisTitles(
                         sideTitles: SideTitles(
+                          showTitles: false,
+                          reservedSize: 0,
+                        ),
+                      )
+                    : AxisTitles(
+                        sideTitles: SideTitles(
                           showTitles: true,
-                          interval: 2,
+                          interval: 10,
                           reservedSize: 40,
                           getTitlesWidget: (value, meta) => Text(
                             value.toStringAsFixed(1),
-                            style: const TextStyle(fontSize: 10),
+                            style: TextStyle(fontSize: 12),
                           ),
                         ),
-                      )
-                    : title == "Gas"
-                        ? AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: false,
-                              reservedSize: 0,
-                            ),
-                          )
-                        : AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 10,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) => Text(
-                                value.toStringAsFixed(1),
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ),
+                      ),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -156,12 +141,10 @@ class GrafikScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              minY: title == "pH" ? 0 : 0,
-              maxY: title == "pH"
-                  ? 14
-                  : sensorDataList.isEmpty
-                      ? 0
-                      : _getMaxValue(title, valueExtractor),
+              minY: 0,
+              maxY: sensorDataList.isEmpty
+                  ? 0
+                  : _getMaxValue(title, valueExtractor),
               minX: 0,
               maxX: sensorDataList.length > 10
                   ? 9
@@ -194,18 +177,6 @@ class GrafikScreen extends StatelessWidget {
 
   double _getMaxValue(
       String title, double Function(SensorData) valueExtractor) {
-    if (title == "pH") {
-      var values = sensorDataList.map((data) {
-        double value = valueExtractor(data);
-        if (value > 14) {
-          return 14.0;
-        } else if (value < 0) {
-          return 0.0;
-        }
-        return value;
-      }).toList();
-      return values.reduce((a, b) => a > b ? a : b);
-    }
     return sensorDataList.map(valueExtractor).reduce((a, b) => a > b ? a : b) *
         1.1;
   }
@@ -222,8 +193,6 @@ class GrafikScreen extends StatelessWidget {
       int dataIndex = startIndex + i;
       double value = valueExtractor(sensorDataList[dataIndex]);
       if (value.isFinite) {
-        if (value > 14) value = 14;
-        if (value < 0) value = 0;
         spots.add(FlSpot(i.toDouble(), value));
       }
     }

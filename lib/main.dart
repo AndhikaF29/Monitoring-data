@@ -103,7 +103,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
 
   @override
   void dispose() {
-    _apiService.dispose(); // Hentikan polling saat screen di-dispose
+    _apiService.dispose(); // Stop polling when screen is disposed
     super.dispose();
   }
 
@@ -166,21 +166,21 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
-                  underline: Container(), // Menghilangkan garis bawah default
+                  underline: Container(), // Remove default underline
                   hint: Text(
-                    'Pilih Rentang Waktu',
+                    'Select Time Range',
                     style: TextStyle(
                         color: widget.isDarkMode
                             ? Colors.white70
                             : Colors.black54),
                   ),
                   items: const [
-                    DropdownMenuItem(value: null, child: Text('Semua Data')),
-                    DropdownMenuItem(value: 1, child: Text('1 Jam Terakhir')),
-                    DropdownMenuItem(value: 3, child: Text('3 Jam Terakhir')),
-                    DropdownMenuItem(value: 6, child: Text('6 Jam Terakhir')),
-                    DropdownMenuItem(value: 12, child: Text('12 Jam Terakhir')),
-                    DropdownMenuItem(value: 24, child: Text('24 Jam Terakhir')),
+                    DropdownMenuItem(value: null, child: Text('All Data')),
+                    DropdownMenuItem(value: 1, child: Text('Last 1 Hour')),
+                    DropdownMenuItem(value: 3, child: Text('Last 3 Hours')),
+                    DropdownMenuItem(value: 6, child: Text('Last 6 Hours')),
+                    DropdownMenuItem(value: 12, child: Text('Last 12 Hours')),
+                    DropdownMenuItem(value: 24, child: Text('Last 24 Hours')),
                   ],
                   onChanged: (int? newValue) {
                     setState(() {
@@ -212,7 +212,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
   }
 
   void _fetchFilteredData() async {
-    // Ambil data sesuai dengan filter yang dipilih
+    // Fetch data according to selected filter
     List<SensorData> fetchedData =
         await ApiService().fetchSensorData(hours: _selectedHours);
 
@@ -230,26 +230,26 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data == null) {
-          // Jika tidak ada data, tampilkan status disconnected
+          // If no data, show disconnected status
           return const Center(child: Text('Disconnected'));
         } else {
           SensorData sensorData = snapshot.data!;
 
-          // Periksa waktu pembaruan data
+          // Check data update time
           final currentTime = DateTime.now();
           final lastUpdateTime =
-              sensorData.timestamp; // Ambil timestamp dari data sensor
+              sensorData.timestamp; // Get timestamp from sensor data
           final difference = currentTime.difference(lastUpdateTime);
 
-          // Jika lebih dari 10 detik tidak ada pembaruan, set isConnected menjadi false
+          // If no update for more than 10 seconds, set isConnected to false
           sensorData.updateConnectionStatus(difference.inSeconds <= 10);
 
-          // Hanya tambahkan data jika belum ada
+          // Only add data if not already exists
           if (!sensorDataList.contains(sensorData)) {
             sensorDataList.add(sensorData);
           }
 
-          // Hitung rata-rata dari sensorDataList
+          // Calculate averages from sensorDataList
           double averageTemperature =
               SensorData.calculateAverageTemperature(sensorDataList);
           double averageGas = SensorData.calculateAverageGas(sensorDataList);
@@ -286,8 +286,8 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey[800] // Warna untuk mode gelap
-            : Colors.blue.shade50, // Warna untuk mode terang
+            ? Colors.grey[800] // Color for dark mode
+            : Colors.blue.shade50, // Color for light mode
         borderRadius: BorderRadius.circular(20.0),
         boxShadow: [
           BoxShadow(
@@ -358,9 +358,9 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 11), // Spasi antara judul dan grid
+          const SizedBox(height: 11), // Space between title and grid
           Expanded(
-            // Gunakan Expanded untuk SensorGridView
+            // Use Expanded for SensorGridView
             child: SensorGridView(
               sensorCards: [
                 SensorInfoCard(
@@ -377,18 +377,13 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                   icon: Icons.gas_meter_rounded,
                 ),
                 SensorInfoCard(
-                  title: 'Soil Moisture',
-                  value: sensorData.ph <= 300 ? 'Basah' : 'Kering',
-                  icon: Icons.grass,
-                ),
-                SensorInfoCard(
                   title: 'Humidity',
                   value: '${sensorData.humidity} %',
                   isDanger: sensorData.humidity > SensorData.humidityThreshold,
                   icon: Icons.water_drop,
                 ),
                 SensorInfoCard(
-                  title: 'Getaran',
+                  title: 'Vibration',
                   value: sensorData.getaran ? 'Danger' : 'Safe',
                   isDanger: sensorData.getaran,
                   icon: Icons.vibration_sharp,
@@ -409,7 +404,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
 
   Widget _buildAverageSensorData(
       double temperature, double gas, double ph, double humidity) {
-    // Hitung nilai min dan max
+    // Calculate min and max values
     double minTemperature = SensorData.calculateMinTemperature(sensorDataList);
     double maxTemperature = SensorData.calculateMaxTemperature(sensorDataList);
     double minGas = SensorData.calculateMinGas(sensorDataList);
@@ -423,8 +418,8 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey[800] // Warna untuk mode gelap
-            : Colors.blue.shade50, // Warna untuk mode terang
+            ? Colors.grey[800] // Color for dark mode
+            : Colors.blue.shade50, // Color for light mode
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
           BoxShadow(
@@ -443,7 +438,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
               Icon(Icons.analytics_outlined, color: Colors.blue.shade700),
               const SizedBox(width: 11),
               const Text(
-                'Rata-Rata Sensor',
+                'Average Sensor Data',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -463,11 +458,6 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
           _buildMinMaxRow('Min: ${minGas.toStringAsFixed(1)} ppm',
               'Max: ${maxGas.toStringAsFixed(1)} ppm'),
           const Divider(height: 20),
-          _buildSensorRow(
-              'Soil Moisture', '${ph.toStringAsFixed(1)}', Icons.grass),
-          _buildMinMaxRow('Min: ${minPh.toStringAsFixed(1)}',
-              'Max: ${maxPh.toStringAsFixed(1)}'),
-          const Divider(height: 20),
           _buildSensorRow('Humidity', '${humidity.toStringAsFixed(1)} %',
               Icons.water_outlined),
           _buildMinMaxRow('Min: ${minHumidity.toStringAsFixed(1)} %',
@@ -477,7 +467,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
             child: ElevatedButton.icon(
               icon: const Icon(Icons.file_download, color: Colors.white),
               label: const Text(
-                'Export Data Sensor',
+                'Export Sensor Data',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -557,7 +547,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
               Icon(Icons.warning_amber_rounded, color: Colors.orange),
               SizedBox(width: 10),
               Text(
-                'Pengaturan Batas Bahaya',
+                'Danger Threshold Settings',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -572,7 +562,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
               children: [
                 _buildThresholdField(
                   controller: temperatureController,
-                  label: 'Batas Suhu',
+                  label: 'Temperature Threshold',
                   suffix: '°C',
                   icon: Icons.thermostat,
                   isDarkMode: widget.isDarkMode,
@@ -580,7 +570,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                 SizedBox(height: 16),
                 _buildThresholdField(
                   controller: gasController,
-                  label: 'Batas Gas',
+                  label: 'Gas Threshold',
                   suffix: 'ppm',
                   icon: Icons.gas_meter,
                   isDarkMode: widget.isDarkMode,
@@ -588,7 +578,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                 SizedBox(height: 16),
                 _buildThresholdField(
                   controller: humidityController,
-                  label: 'Batas Kelembaban',
+                  label: 'Humidity Threshold',
                   suffix: '%',
                   icon: Icons.water_drop,
                   isDarkMode: widget.isDarkMode,
@@ -600,7 +590,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'Batal',
+                'Cancel',
                 style: TextStyle(color: Colors.grey),
               ),
             ),
@@ -612,7 +602,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                 ),
               ),
               onPressed: () async {
-                // Simpan nilai threshold baru
+                // Save new threshold values
                 await prefs.setDouble('temperature_threshold',
                     double.tryParse(temperatureController.text) ?? 35.0);
                 await prefs.setDouble('gas_threshold',
@@ -620,7 +610,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                 await prefs.setDouble('humidity_threshold',
                     double.tryParse(humidityController.text) ?? 80.0);
 
-                // Update nilai threshold di SensorData
+                // Update threshold values in SensorData
                 SensorData.temperatureThreshold =
                     double.tryParse(temperatureController.text) ?? 35.0;
                 SensorData.gasThreshold =
@@ -634,7 +624,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  'Simpan',
+                  'Save',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -692,7 +682,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
               Icon(Icons.file_download_outlined, color: Colors.blue),
               SizedBox(width: 10),
               Text(
-                'Export Data Sensor',
+                'Export Sensor Data',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -717,7 +707,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                     icon: Icon(Icons.calendar_today),
                     label: Text(
                       selectedDateRange == null
-                          ? 'Pilih Rentang Tanggal'
+                          ? 'Select Date Range'
                           : '${DateFormat('dd/MM/yyyy').format(selectedDateRange!.start)} - ${DateFormat('dd/MM/yyyy').format(selectedDateRange!.end)}',
                     ),
                     style: ElevatedButton.styleFrom(
@@ -772,7 +762,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
                                   color: Colors.blue.shade700, size: 20),
                               SizedBox(width: 8),
                               Text(
-                                'Jumlah data: ${filteredData.length}',
+                                'Total data: ${filteredData.length}',
                                 style: TextStyle(fontSize: 16),
                               ),
                             ],
@@ -805,7 +795,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'Batal',
+                'Cancel',
                 style: TextStyle(color: Colors.grey),
               ),
             ),
@@ -838,54 +828,60 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
 
   Future<void> _exportSensorData(DateTimeRange dateRange) async {
     try {
-      // Cek dan minta permission storage terlebih dahulu
+      // Check and request storage permission first
       if (Platform.isAndroid) {
         var status = await Permission.storage.status;
         if (!status.isGranted) {
           status = await Permission.storage.request();
           if (!status.isGranted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Izin penyimpanan diperlukan untuk export data')),
+              const SnackBar(
+                  content:
+                      Text('Storage permission required for data export')),
             );
-            return; // Hentikan jika izin tidak diberikan
+            return; // Stop if permission not granted
           }
         }
       }
 
-      // Pilih lokasi penyimpanan terlebih dahulu
+      // Choose save location first
       String? filePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Simpan Data Sensor',
-        fileName: 'sensor_data_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.csv',
+        dialogTitle: 'Save Sensor Data',
+        fileName:
+            'sensor_data_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.csv',
         type: FileType.custom,
         allowedExtensions: ['csv'],
       );
 
-      if (filePath == null) return; // Hentikan jika pengguna membatalkan dialog
+      if (filePath == null) {
+        print('File path is null');
+        return; // Stop if user cancels dialog
+      }
 
-      // Ambil data dengan try-catch terpisah
+      // Get data with separate try-catch
       List<SensorData> filteredData;
       try {
         filteredData = await _apiService.fetchSensorDataByDateRange(
           dateRange.start,
           dateRange.end,
         );
+        print('Data fetched: ${filteredData.length} items');
       } catch (e) {
-        Navigator.pop(context); // Tutup loading
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mengambil data: $e')),
+          SnackBar(content: Text('Failed to fetch data: $e')),
         );
         return;
       }
 
       if (filteredData.isEmpty) {
-        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tidak ada data untuk rentang waktu yang dipilih')),
+          const SnackBar(
+              content: Text('No data available for selected time range')),
         );
-        return; // Hentikan jika tidak ada data
+        return; // Stop if no data
       }
 
-      // Proses data ke CSV
+      // Process data to CSV
       final rows = [
         [
           'Timestamp',
@@ -897,15 +893,17 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
           'Infrared'
         ],
         ...filteredData.map((data) => [
-          DateFormat('yyyy-MM-dd HH:mm:ss').format(data.timestamp),
-          data.temperature.toString(),
-          data.gas.toString(),
-          data.ph.toString(),
-          data.humidity.toString(),
-          data.getaran ? 'Danger' : 'Safe',
-          data.infrared ? 'Danger' : 'Safe',
-        ]),
+              DateFormat('yyyy-MM-dd HH:mm:ss').format(data.timestamp),
+              data.temperature.toString(),
+              data.gas.toString(),
+              data.ph.toString(),
+              data.humidity.toString(),
+              data.getaran ? 'Danger' : 'Safe',
+              data.infrared ? 'Danger' : 'Safe',
+            ]),
       ];
+
+      print('Rows to export: ${rows.length}');
 
       // Tulis file dengan try-catch terpisah
       try {
@@ -913,24 +911,20 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
         final file = File(filePath);
         await file.writeAsString(csv, flush: true);
       } catch (e) {
-        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menyimpan file: $e')),
         );
         return;
       }
 
-      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Data berhasil disimpan ke: $filePath'),
           backgroundColor: Colors.green,
         ),
       );
-
     } catch (e) {
       if (!mounted) return;
-      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Terjadi kesalahan: $e')),
       );

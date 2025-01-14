@@ -20,7 +20,7 @@ class BottomNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.analytics),
-          label: 'Grafik',
+          label: 'Chart',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.settings),
